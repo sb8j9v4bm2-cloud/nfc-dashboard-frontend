@@ -421,6 +421,45 @@
         .hidden {
             display: none;
         }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 12px;
+            }
+
+            .main {
+                flex-direction: column;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat {
+                padding: 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .header {
+                font-size: 18px;
+                padding: 16px 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -448,12 +487,6 @@
             </div>
 
             <button class="btn-login" onclick="handleLogin()">Login</button>
-
-            <div class="test-creds">
-                <strong>Test Credentials:</strong><br>
-                Business: owner@barbershop.com / password<br>
-                Admin: admin@nfc.com / admin123
-            </div>
         </div>
     </div>
 
@@ -625,7 +658,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://nfc-dashboard-backend-production.up.railway.app';
+        const API_URL = `http://${window.location.hostname}:3001`;
         let currentUser = null;
         let currentToken = null;
         let loginRole = 'business';

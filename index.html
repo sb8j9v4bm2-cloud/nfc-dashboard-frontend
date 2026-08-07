@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0e27;
+            --bg2: #141829;
+            --bg3: #1a1f3a;
+            --accent: #f59e0b;
+            --text: #ffffff;
+            --text2: #a0aec0;
+            --border: #2d3748;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 32px;
+        }
+
+        .user-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--text2);
+            margin-bottom: 4px;
+        }
+
+        .user-role {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav {
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text2);
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .logout-btn {
+            padding: 12px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 40px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        /* Login Page */
+        .login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--bg);
+        }
+
+        .login-box {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--text2);
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+        .role-toggle {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg3);
+            color: var(--text2);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .role-btn.active {
+            border-color: var(--accent);
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text2);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: #f97316;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .test-creds {
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--bg3);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .test-creds strong {
+            color: var(--text);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, var(--bg3), rgba(245, 158, 11, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .form-input {
+            padding: 10px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .btn-create {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .btn-create:hover {
+            background: #f97316;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .cards-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .card-item {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .card-item-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .card-item-detail {
+            font-size: 12px;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+
+        .card-item-url {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--accent);
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: var(--bg3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text2);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page">
+        <div class="login-box">
+            <div class="login-title">NFC Dashboard</div>
+            <div class="login-subtitle">Review Card Analytics</div>
+
+            <div id="loginError" class="error-message hidden"></div>
+
+            <div class="role-toggle">
+                <button class="role-btn active" onclick="setLoginRole('business')">Business</button>
+                <button class="role-btn" onclick="setLoginRole('admin')">Admin</button>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+
+            <button class="btn-login" onclick="handleLogin()">Login</button>
+
+            <div class="test-creds">
+                <strong>Test Credentials:</strong><br>
+                Business: owner@barbershop.com / password<br>
+                Admin: admin@nfc.com / admin123
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="container hidden">
+        <div class="sidebar">
+            <div class="logo">📊 NFC Analytics</div>
+            <div class="user-section">
+                <div class="user-email" id="userEmail">user@email.com</div>
+                <div class="user-role" id="userRole">Business</div>
+            </div>
+
+            <div class="nav" id="navBusiness">
+                <button class="nav-item active" onclick="showPage('overview')">📈 Overview</button>
+                <button class="nav-item" onclick="showPage('analytics')">📊 Analytics</button>
+                <button class="nav-item" onclick="showPage('cards')">🎫 NFC Cards</button>
+                <button class="nav-item" onclick="showPage('logs')">📋 Tap Logs</button>
+            </div>
+
+            <div class="nav hidden" id="navAdmin">
+                <button class="nav-item active" onclick="showPage('businesses')">🏢 Businesses</button>
+            </div>
+
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="main">
+            <div class="header" id="pageTitle">Overview</div>
+            <div class="content">
+                <!-- Overview Page -->
+                <div id="overviewPage" class="page">
+                    <div class="grid">
+                        <div class="stat">
+                            <div class="stat-value" id="statTodayTaps">0</div>
+                            <div class="stat-label">Taps Today</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="statLastTap">-</div>
+                            <div class="stat-label">Last Tap</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="statTotalTaps">0</div>
+                            <div class="stat-label">Total Taps</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="statCards">0</div>
+                            <div class="stat-label">Cards</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Quick Stats</div>
+                        <div class="grid">
+                            <div class="stat">
+                                <div class="stat-value" id="statAvgTaps">0</div>
+                                <div class="stat-label">Avg Taps/Card</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="statPercentChange">0%</div>
+                                <div class="stat-label">Today vs Avg</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Page -->
+                <div id="analyticsPage" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">Tap Metrics</div>
+                        <div class="grid">
+                            <div class="stat">
+                                <div class="stat-value" id="analyticsTodayTaps">0</div>
+                                <div class="stat-label">Today</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="analytics7Days">0</div>
+                                <div class="stat-label">Last 7 Days</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="analytics30Days">0</div>
+                                <div class="stat-label">Last 30 Days</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="analyticsAllTime">0</div>
+                                <div class="stat-label">All Time</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Additional Metrics</div>
+                        <div class="grid">
+                            <div class="stat">
+                                <div class="stat-value" id="analyticsAvgDaily">0</div>
+                                <div class="stat-label">Avg Daily Taps</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="analyticsMostTapped">-</div>
+                                <div class="stat-label">Most Tapped Card</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards Page -->
+                <div id="cardsPage" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">Create New Card</div>
+                        <div class="form-row">
+                            <input type="text" id="cardName" class="form-input" placeholder="Card Name">
+                            <input type="url" id="cardUrl" class="form-input" placeholder="Redirect URL">
+                            <button class="btn-create" onclick="createCard()">Create</button>
+                        </div>
+                        <div id="cardMessage"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Your Cards</div>
+                        <div class="cards-list" id="cardsList"></div>
+                    </div>
+                </div>
+
+                <!-- Logs Page -->
+                <div id="logsPage" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">Tap Logs</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Card</th>
+                                    <th>Device</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Businesses Page (Admin) -->
+                <div id="businessesPage" class="page hidden">
+                    <div class="card">
+                        <div class="card-title">Create New Business</div>
+                        <div class="form-row">
+                            <input type="text" id="newBizName" class="form-input" placeholder="Business Name">
+                            <input type="email" id="newBizEmail" class="form-input" placeholder="Email">
+                            <button class="btn-create" onclick="createBusiness()">Create</button>
+                        </div>
+                        <div id="bizMessage"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">All Businesses</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Business</th>
+                                    <th>Email</th>
+                                    <th>Cards</th>
+                                    <th>Total Taps</th>
+                                </tr>
+                            </thead>
+                            <tbody id="businessesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://nfc-dashboard-backend-production.up.railway.app';
+        let currentUser = null;
+        let currentToken = null;
+        let loginRole = 'business';
+
+        // Login Functions
+        function setLoginRole(role) {
+            loginRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!email || !password) {
+                errorDiv.textContent = 'Please enter email and password';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role: loginRole })
+                });
+
+                if (!res.ok) throw new Error('Login failed');
+
+                const data = await res.json();
+                currentToken = data.token;
+                currentUser = data;
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('email', data.email);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('businessId', data.businessId);
+
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = data.email;
+                document.getElementById('userRole').textContent = data.role === 'admin' ? 'Admin' : 'Business';
+
+                if (data.role === 'business') {
+                    document.getElementById('navBusiness').classList.remove('hidden');
+                    document.getElementById('navAdmin').classList.add('hidden');
+                    showPage('overview');
+                } else {
+                    document.getElementById('navBusiness').classList.add('hidden');
+                    document.getElementById('navAdmin').classList.remove('hidden');
+                    showPage('businesses');
+                }
+
+                errorDiv.classList.add('hidden');
+            } catch (err) {
+                errorDiv.textContent = 'Login failed. Check credentials or backend connection.';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('email');
+            localStorage.removeItem('role');
+            currentUser = null;
+            currentToken = null;
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Navigation
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const titles = {
+                overview: 'Overview',
+                analytics: 'Analytics',
+                cards: 'NFC Cards',
+                logs: 'Tap Logs',
+                businesses: 'Businesses'
+            };
+
+            document.getElementById('pageTitle').textContent = titles[page];
+
+            if (page === 'overview') {
+                document.getElementById('overviewPage').classList.remove('hidden');
+                loadOverview();
+            } else if (page === 'analytics') {
+                document.getElementById('analyticsPage').classList.remove('hidden');
+                loadAnalytics();
+            } else if (page === 'cards') {
+                document.getElementById('cardsPage').classList.remove('hidden');
+                loadCards();
+            } else if (page === 'logs') {
+                document.getElementById('logsPage').classList.remove('hidden');
+                loadLogs();
+            } else if (page === 'businesses') {
+                document.getElementById('businessesPage').classList.remove('hidden');
+                loadBusinesses();
+            }
+        }
+
+        // Load Overview
+        async function loadOverview() {
+            try {
+                const res = await fetch(`${API_URL}/api/stats/${currentUser.businessId}`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+
+                const data = await res.json();
+                document.getElementById('statTodayTaps').textContent = data.todayTaps;
+                document.getElementById('statLastTap').textContent = data.lastTap ? getTimeAgo(new Date(data.lastTap)) : 'Never';
+                document.getElementById('statTotalTaps').textContent = data.totalTaps;
+                document.getElementById('statCards').textContent = data.activeCards;
+                document.getElementById('statAvgTaps').textContent = data.activeCards > 0 ? Math.round(data.totalTaps / data.activeCards) : 0;
+                document.getElementById('statPercentChange').textContent = data.totalTaps > 0 ? Math.round((data.todayTaps / (data.totalTaps / 30)) * 100) + '%' : '0%';
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Load Analytics
+        async function loadAnalytics() {
+            try {
+                const periods = ['today', '7days', '30days', 'alltime'];
+                const results = {};
+
+                for (const period of periods) {
+                    const res = await fetch(`${API_URL}/api/analytics/${currentUser.businessId}?period=${period}`, {
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    });
+                    if (!res.ok) throw new Error('Failed');
+                    const data = await res.json();
+                    results[period] = data.data.reduce((a, b) => a + b, 0);
+                }
+
+                document.getElementById('analyticsTodayTaps').textContent = results.today;
+                document.getElementById('analytics7Days').textContent = results['7days'];
+                document.getElementById('analytics30Days').textContent = results['30days'];
+                document.getElementById('analyticsAllTime').textContent = results.alltime;
+                document.getElementById('analyticsAvgDaily').textContent = results['30days'] > 0 ? Math.round(results['30days'] / 30) : 0;
+
+                const res2 = await fetch(`${API_URL}/api/stats/${currentUser.businessId}`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                const stats = await res2.json();
+                const mostTapped = stats.cards.length > 0 ? stats.cards.reduce((a, b) => a.totalTaps > b.totalTaps ? a : b).name : '-';
+                document.getElementById('analyticsMostTapped').textContent = mostTapped;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Load Cards
+        async function loadCards() {
+            try {
+                const res = await fetch(`${API_URL}/api/stats/${currentUser.businessId}`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+
+                const data = await res.json();
+                const list = document.getElementById('cardsList');
+                list.innerHTML = '';
+
+                if (data.cards.length === 0) {
+                    list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text2); padding: 40px;">No cards yet. Create one above!</div>';
+                    return;
+                }
+
+                data.cards.forEach(card => {
+                    list.innerHTML += `
+                        <div class="card-item">
+                            <div class="card-item-name">${card.name}</div>
+                            <div class="card-item-detail"><strong>Taps:</strong> ${card.totalTaps}</div>
+                            <div class="card-item-detail"><strong>Last Tap:</strong> ${card.lastTap ? getTimeAgo(new Date(card.lastTap)) : 'Never'}</div>
+                            <div class="card-item-detail"><strong>Serial:</strong> ${card.serial}</div>
+                            <div class="card-item-url">🔗 ${card.redirectUrl}</div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Create Card
+        async function createCard() {
+            const name = document.getElementById('cardName').value;
+            const url = document.getElementById('cardUrl').value;
+            const msg = document.getElementById('cardMessage');
+
+            if (!name || !url) {
+                msg.innerHTML = '<div class="message error">Fill in all fields</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/cards`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({ name, redirectUrl: url })
+                });
+
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+
+                msg.innerHTML = `<div class="message success">✅ Card created! Tap URL: ${data.tapUrl}</div>`;
+                document.getElementById('cardName').value = '';
+                document.getElementById('cardUrl').value = '';
+                setTimeout(() => loadCards(), 1000);
+            } catch (err) {
+                msg.innerHTML = `<div class="message error">❌ Failed to create card</div>`;
+            }
+        }
+
+        // Load Logs
+        async function loadLogs() {
+            try {
+                const res = await fetch(`${API_URL}/api/logs/${currentUser.businessId}`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+
+                const logs = await res.json();
+                const table = document.getElementById('logsTable');
+                table.innerHTML = '';
+
+                if (logs.length === 0) {
+                    table.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text2);">No taps yet</td></tr>';
+                    return;
+                }
+
+                logs.forEach(log => {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${new Date(log.timestamp).toLocaleString()}</td>
+                            <td>${log.cardName}</td>
+                            <td>${log.device}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Load Businesses (Admin)
+        async function loadBusinesses() {
+            try {
+                const res = await fetch(`${API_URL}/admin/businesses`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                if (!res.ok) throw new Error('Failed');
+
+                const businesses = await res.json();
+                const table = document.getElementById('businessesTable');
+                table.innerHTML = '';
+
+                businesses.forEach(biz => {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${biz.name}</td>
+                            <td>${biz.email}</td>
+                            <td>${biz.cardCount}</td>
+                            <td>${biz.totalTaps}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Create Business (Admin)
+        async function createBusiness() {
+            const name = document.getElementById('newBizName').value;
+            const email = document.getElementById('newBizEmail').value;
+            const msg = document.getElementById('bizMessage');
+
+            if (!name || !email) {
+                msg.innerHTML = '<div class="message error">Fill in all fields</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/admin/create-business`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+
+                msg.innerHTML = `<div class="message success">✅ Business created!<br>Email: ${email}<br>Password: ${data.password}</div>`;
+                document.getElementById('newBizName').value = '';
+                document.getElementById('newBizEmail').value = '';
+                setTimeout(() => loadBusinesses(), 1000);
+            } catch (err) {
+                msg.innerHTML = `<div class="message error">❌ Failed to create business</div>`;
+            }
+        }
+
+        // Utility
+        function getTimeAgo(date) {
+            const seconds = Math.floor((Date.now() - date) / 1000);
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            if (seconds < 2592000) return Math.floor(seconds / 86400) + 'd ago';
+            return Math.floor(seconds / 2592000) + 'mo ago';
+        }
+
+        // Check for existing session
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                currentToken = token;
+                currentUser = {
+                    email: localStorage.getItem('email'),
+                    role: localStorage.getItem('role'),
+                    businessId: localStorage.getItem('businessId')
+                };
+
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Admin' : 'Business';
+
+                if (currentUser.role === 'business') {
+                    document.getElementById('navBusiness').classList.remove('hidden');
+                    document.getElementById('navAdmin').classList.add('hidden');
+                    showPage('overview');
+                } else {
+                    document.getElementById('navBusiness').classList.add('hidden');
+                    document.getElementById('navAdmin').classList.remove('hidden');
+                    showPage('businesses');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

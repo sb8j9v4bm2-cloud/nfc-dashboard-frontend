@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFC Dashboard</title>
+    <title>NFC Reviews - Dashboard</title>
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #0a0e27;
             --bg2: #141829;
@@ -20,19 +16,13 @@
             --text2: #a0aec0;
             --border: #2d3748;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
         }
-
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-
+        .container { display: flex; height: 100vh; }
         .sidebar {
             width: 250px;
             background: var(--bg2);
@@ -41,976 +31,534 @@
             display: flex;
             flex-direction: column;
         }
-
-        .logo {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 32px;
-        }
-
-        .user-section {
-            margin-bottom: 32px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .user-email {
-            font-size: 12px;
-            color: var(--text2);
-            margin-bottom: 4px;
-        }
-
-        .user-role {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .nav {
-            flex: 1;
-        }
-
+        .logo { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 32px; }
+        .nav { flex: 1; }
         .nav-item {
             padding: 12px 16px;
             margin-bottom: 8px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
             color: var(--text2);
-            background: transparent;
-            border: none;
-            width: 100%;
-            text-align: left;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            transition: all 0.3s;
         }
-
-        .nav-item:hover {
-            color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
-        }
-
-        .nav-item.active {
-            color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
-            border-left-color: var(--accent);
-        }
-
+        .nav-item.active { background: var(--bg3); color: var(--accent); }
+        .nav-item:hover { background: var(--bg3); }
         .logout-btn {
             padding: 12px 16px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            border-radius: 6px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 8px;
+            color: white;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
+            width: 100%;
+            font-weight: 600;
         }
-
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
+        .main { flex: 1; display: flex; flex-direction: column; }
         .header {
+            padding: 20px 40px;
             background: var(--bg2);
             border-bottom: 1px solid var(--border);
-            padding: 20px 40px;
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 40px;
-        }
-
-        /* Login Page */
-        .login-page {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: var(--bg);
         }
-
-        .login-box {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 380px;
-        }
-
-        .login-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .login-subtitle {
-            text-align: center;
-            color: var(--text2);
-            font-size: 13px;
-            margin-bottom: 30px;
-        }
-
-        .role-toggle {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .role-btn {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid var(--border);
-            background: var(--bg3);
-            color: var(--text2);
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .role-btn.active {
-            border-color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--accent);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: var(--text2);
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text);
-            font-size: 14px;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: var(--bg);
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent);
-            color: #000;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-
-        .btn-login:hover {
-            background: #f97316;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 13px;
-        }
-
-        .test-creds {
-            margin-top: 20px;
-            padding: 12px;
-            background: var(--bg3);
-            border-radius: 6px;
-            font-size: 12px;
-            color: var(--text2);
-        }
-
-        .test-creds strong {
-            color: var(--text);
-        }
-
-        /* Cards */
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .page { display: none; }
+        .page.active { display: block; }
         .card {
             background: var(--bg2);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
             margin-bottom: 20px;
         }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
         .stat {
-            background: linear-gradient(135deg, var(--bg3), rgba(245, 158, 11, 0.05));
+            background: var(--bg3);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 20px;
             text-align: center;
         }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text2);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 12px;
-            align-items: flex-end;
-            margin-bottom: 16px;
-        }
-
-        .form-input {
-            padding: 10px;
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text);
-            font-size: 13px;
-        }
-
-        .btn-create {
-            padding: 10px 20px;
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--accent); }
+        .stat-label { color: var(--text2); margin-top: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .btn {
+            padding: 12px 24px;
             background: var(--accent);
-            color: #000;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
+            color: #000;
             cursor: pointer;
             font-weight: 600;
-            font-size: 13px;
-            white-space: nowrap;
+            transition: all 0.3s;
         }
-
-        .btn-create:hover {
-            background: #f97316;
-        }
-
-        .message {
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            margin-bottom: 12px;
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid #10b981;
-            color: #10b981;
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-        }
-
-        .cards-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 16px;
-        }
-
-        .card-item {
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px;
             background: var(--bg3);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 16px;
-        }
-
-        .card-item-name {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 12px;
             color: var(--text);
+            font-family: inherit;
         }
-
-        .card-item-detail {
-            font-size: 12px;
-            color: var(--text2);
-            margin-bottom: 6px;
-        }
-
-        .card-item-url {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 8px;
-            margin-top: 10px;
-            font-size: 11px;
-            color: var(--accent);
-            font-family: monospace;
-            word-break: break-all;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        thead {
-            background: var(--bg3);
-            border-bottom: 1px solid var(--border);
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        tbody tr:hover {
-            background: var(--bg3);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text2);
-        }
-
-        .hidden {
+        .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
-
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--bg2);
+            border-radius: 12px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--border);
+        }
+        .close-modal { float: right; cursor: pointer; font-size: 28px; color: var(--text2); }
+        .payment-status {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .payment-status.paid { background: #27ae60; color: white; }
+        .payment-status.unpaid { background: #e74c3c; color: white; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table td, .table th { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        .table th { background: var(--bg3); font-weight: 600; }
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding: 12px;
-            }
-
-            .main {
-                flex-direction: column;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stat {
-                padding: 16px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .header {
-                font-size: 18px;
-                padding: 16px 20px;
-            }
+            .sidebar { width: 100%; height: auto; padding: 12px; border-right: none; border-bottom: 1px solid var(--border); }
+            .main { flex-direction: column; }
+            .content { padding: 20px; }
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Login Page -->
-    <div id="loginPage" class="login-page">
-        <div class="login-box">
-            <div class="login-title">NFC Dashboard</div>
-            <div class="login-subtitle">Review Card Analytics</div>
-
-            <div id="loginError" class="error-message hidden"></div>
-
-            <div class="role-toggle">
-                <button class="role-btn active" onclick="setLoginRole('business')">Business</button>
-                <button class="role-btn" onclick="setLoginRole('admin')">Admin</button>
-            </div>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="your@email.com">
-            </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" placeholder="••••••••">
-            </div>
-
-            <button class="btn-login" onclick="handleLogin()">Login</button>
-        </div>
-    </div>
-
-    <!-- Dashboard -->
-    <div id="dashboard" class="container hidden">
+    <div class="container">
         <div class="sidebar">
-            <div class="logo">📊 NFC Analytics</div>
-            <div class="user-section">
-                <div class="user-email" id="userEmail">user@email.com</div>
-                <div class="user-role" id="userRole">Business</div>
-            </div>
-
-            <div class="nav" id="navBusiness">
-                <button class="nav-item active" onclick="showPage('overview')">📈 Overview</button>
-                <button class="nav-item" onclick="showPage('analytics')">📊 Analytics</button>
-                <button class="nav-item" onclick="showPage('cards')">🎫 NFC Cards</button>
-                <button class="nav-item" onclick="showPage('logs')">📋 Tap Logs</button>
-            </div>
-
-            <div class="nav hidden" id="navAdmin">
-                <button class="nav-item active" onclick="showPage('businesses')">🏢 Businesses</button>
-            </div>
-
-            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            <div class="logo">📊 NFC Reviews</div>
+            <div class="nav" id="nav"></div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
-
         <div class="main">
-            <div class="header" id="pageTitle">Overview</div>
+            <div class="header">
+                <div>
+                    <h2 id="pageTitle">Dashboard</h2>
+                    <p id="userEmail"></p>
+                </div>
+            </div>
             <div class="content">
-                <!-- Overview Page -->
-                <div id="overviewPage" class="page">
-                    <div class="grid">
-                        <div class="stat">
-                            <div class="stat-value" id="statTodayTaps">0</div>
-                            <div class="stat-label">Taps Today</div>
+                <!-- LOGIN PAGE -->
+                <div id="loginPage" class="page active">
+                    <div class="card" style="max-width: 400px; margin: 100px auto;">
+                        <h2 style="margin-bottom: 24px; text-align: center;">NFC Reviews Login</h2>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" placeholder="your@email.com">
                         </div>
-                        <div class="stat">
-                            <div class="stat-value" id="statLastTap">-</div>
-                            <div class="stat-label">Last Tap</div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="loginPassword" placeholder="••••••••">
                         </div>
-                        <div class="stat">
-                            <div class="stat-value" id="statTotalTaps">0</div>
-                            <div class="stat-label">Total Taps</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="statCards">0</div>
-                            <div class="stat-label">Cards</div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">Quick Stats</div>
-                        <div class="grid">
-                            <div class="stat">
-                                <div class="stat-value" id="statAvgTaps">0</div>
-                                <div class="stat-label">Avg Taps/Card</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="statPercentChange">0%</div>
-                                <div class="stat-label">Today vs Avg</div>
-                            </div>
-                        </div>
+                        <button class="btn" onclick="handleLogin()" style="width: 100%; margin-top: 20px;">Login</button>
                     </div>
                 </div>
 
-                <!-- Analytics Page -->
-                <div id="analyticsPage" class="page hidden">
+                <!-- PAYMENT PAGE (Business) -->
+                <div id="paymentPage" class="page">
+                    <h1 style="margin-bottom: 20px;">Billing & Payments</h1>
+                    
+                    <!-- One-Time Fee -->
                     <div class="card">
-                        <div class="card-title">Tap Metrics</div>
-                        <div class="grid">
-                            <div class="stat">
-                                <div class="stat-value" id="analyticsTodayTaps">0</div>
-                                <div class="stat-label">Today</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="analytics7Days">0</div>
-                                <div class="stat-label">Last 7 Days</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="analytics30Days">0</div>
-                                <div class="stat-label">Last 30 Days</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="analyticsAllTime">0</div>
-                                <div class="stat-label">All Time</div>
-                            </div>
-                        </div>
+                        <h3 style="margin-bottom: 16px;">One-Time Setup Fee</h3>
+                        <div id="oneTimeStatus" class="payment-status unpaid">Status: Unpaid - $70 AUD</div>
+                        <p style="margin-bottom: 20px; color: var(--text2);">One-time fee to activate your NFC review card dashboard.</p>
+                        <button class="btn" onclick="openOneTimeCheckout()">Pay $70 AUD</button>
                     </div>
 
+                    <!-- Recurring Billing -->
                     <div class="card">
-                        <div class="card-title">Additional Metrics</div>
-                        <div class="grid">
-                            <div class="stat">
-                                <div class="stat-value" id="analyticsAvgDaily">0</div>
-                                <div class="stat-label">Avg Daily Taps</div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-value" id="analyticsMostTapped">-</div>
-                                <div class="stat-label">Most Tapped Card</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cards Page -->
-                <div id="cardsPage" class="page hidden">
-                    <div class="card">
-                        <div class="card-title">Create New Card</div>
-                        <div class="form-row">
-                            <input type="text" id="cardName" class="form-input" placeholder="Card Name">
-                            <input type="url" id="cardUrl" class="form-input" placeholder="Redirect URL">
-                            <button class="btn-create" onclick="createCard()">Create</button>
-                        </div>
-                        <div id="cardMessage"></div>
+                        <h3 style="margin-bottom: 16px;">Monthly Subscription</h3>
+                        <div id="recurringStatus" class="payment-status unpaid">Status: Inactive - $8 AUD/month</div>
+                        <p style="margin-bottom: 20px; color: var(--text2);">Monthly access to your NFC dashboard and analytics.</p>
+                        <button class="btn" onclick="openRecurringCheckout()">Subscribe $8/month</button>
                     </div>
 
+                    <!-- Invoice History -->
                     <div class="card">
-                        <div class="card-title">Your Cards</div>
-                        <div class="cards-list" id="cardsList"></div>
-                    </div>
-                </div>
-
-                <!-- Logs Page -->
-                <div id="logsPage" class="page hidden">
-                    <div class="card">
-                        <div class="card-title">Tap Logs</div>
-                        <table>
+                        <h3 style="margin-bottom: 16px;">Invoice History</h3>
+                        <table class="table" id="invoiceTable">
                             <thead>
                                 <tr>
-                                    <th>Timestamp</th>
-                                    <th>Card</th>
-                                    <th>Device</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="logsTable"></tbody>
+                            <tbody id="invoiceBody">
+                                <tr><td colspan="4" style="text-align: center; color: var(--text2);">No invoices yet</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Businesses Page (Admin) -->
-                <div id="businessesPage" class="page hidden">
-                    <div class="card">
-                        <div class="card-title">Create New Business</div>
-                        <div class="form-row">
-                            <input type="text" id="newBizName" class="form-input" placeholder="Business Name">
-                            <input type="email" id="newBizEmail" class="form-input" placeholder="Email">
-                            <button class="btn-create" onclick="createBusiness()">Create</button>
+                <!-- ADMIN REVENUE PAGE -->
+                <div id="adminPage" class="page">
+                    <h1 style="margin-bottom: 20px;">Admin Dashboard</h1>
+                    
+                    <div class="grid">
+                        <div class="stat">
+                            <div class="stat-value" id="totalRevenue">$0</div>
+                            <div class="stat-label">Total Revenue</div>
                         </div>
-                        <div id="bizMessage"></div>
+                        <div class="stat">
+                            <div class="stat-value" id="activeBusinesses">0</div>
+                            <div class="stat-label">Active Businesses</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="totalTransactions">0</div>
+                            <div class="stat-label">Transactions</div>
+                        </div>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">All Businesses</div>
-                        <table>
+                        <h3 style="margin-bottom: 16px;">Businesses</h3>
+                        <table class="table" id="businessTable">
                             <thead>
                                 <tr>
                                     <th>Business</th>
                                     <th>Email</th>
-                                    <th>Cards</th>
-                                    <th>Total Taps</th>
+                                    <th>One-Time</th>
+                                    <th>Subscription</th>
+                                    <th>Next Due</th>
                                 </tr>
                             </thead>
-                            <tbody id="businessesTable"></tbody>
+                            <tbody id="businessBody">
+                                <tr><td colspan="5" style="text-align: center; color: var(--text2);">Loading...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- OTHER PAGES (Existing functionality) -->
+                <div id="overviewPage" class="page">
+                    <h1 style="margin-bottom: 20px;">Overview</h1>
+                    <div class="grid">
+                        <div class="stat">
+                            <div class="stat-value" id="tapsToday">0</div>
+                            <div class="stat-label">Taps Today</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="totalTaps">0</div>
+                            <div class="stat-label">Total Taps</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="activeCards">0</div>
+                            <div class="stat-label">Active Cards</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="analyticsPage" class="page">
+                    <h1>Analytics</h1>
+                    <p style="color: var(--text2);">View detailed analytics of your NFC card performance.</p>
+                </div>
+
+                <div id="cardsPage" class="page">
+                    <h1 style="margin-bottom: 20px;">NFC Cards</h1>
+                    <div id="cardsList" style="color: var(--text2);">No cards yet</div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Stripe Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 24px;" id="checkoutTitle">Payment</h2>
+            <form id="checkoutForm" onsubmit="processPayment(event)">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="paymentEmail" required>
+                </div>
+                <div id="cardElement" style="padding: 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px;"></div>
+                <button type="submit" class="btn" style="width: 100%;">Complete Payment</button>
+            </form>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://nfc-dashboard-backend-production.up.railway.app';
+        const stripe = Stripe('pk_live_51U20hdJBwfWLEJxIozg1Uu1nTRZQoCb1HuvBrv2iXfhCubUsmMRFamiEMfbfaXjFNxNfq8d7QhnwwofdlFfnF9vE00oL4wV8xD');
         let currentUser = null;
         let currentToken = null;
-        let loginRole = 'business';
+        let paymentType = null;
+        let elements = null;
+        let cardElement = null;
 
-        // Login Functions
-        function setLoginRole(role) {
-            loginRole = role;
-            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        // Initialize Stripe Elements
+        function initStripe() {
+            if (!elements) {
+                elements = stripe.elements();
+                cardElement = elements.create('card', {
+                    style: {
+                        base: {
+                            color: '#ffffff',
+                            fontFamily: 'system-ui, sans-serif',
+                            fontSmoothing: 'antialiased',
+                            fontSize: '16px',
+                            '::placeholder': { color: '#a0aec0' }
+                        },
+                        invalid: { color: '#e74c3c' }
+                    }
+                });
+            }
+            if (cardElement && document.getElementById('cardElement')) {
+                cardElement.mount('#cardElement');
+            }
         }
 
+        // Navigation
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`[onclick*="'${page}'"]`)?.classList.add('active');
+
+            if (page === 'adminPage') loadAdminData();
+            else if (page === 'paymentPage') loadPaymentStatus();
+            else if (page === 'overviewPage') loadOverview();
+        }
+
+        // Build Navigation
+        function buildNav() {
+            const role = localStorage.getItem('nfc_role');
+            const items = [
+                { label: 'Overview', page: 'overviewPage', icon: '📊' },
+                { label: 'Analytics', page: 'analyticsPage', icon: '📈' },
+                { label: 'NFC Cards', page: 'cardsPage', icon: '🏷️' },
+            ];
+            
+            if (role === 'business') {
+                items.push({ label: 'Payments', page: 'paymentPage', icon: '💳' });
+            }
+            if (role === 'admin') {
+                items.push({ label: 'Admin', page: 'adminPage', icon: '⚙️' });
+            }
+
+            const nav = document.getElementById('nav');
+            nav.innerHTML = items.map((item, i) => 
+                `<div class="nav-item ${i===0?'active':''}" onclick="showPage('${item.page}')">${item.icon} ${item.label}</div>`
+            ).join('');
+        }
+
+        // Login
         async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('loginError');
-
-            if (!email || !password) {
-                errorDiv.textContent = 'Please enter email and password';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
 
             try {
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, role: loginRole })
+                    body: JSON.stringify({ email, password })
                 });
 
-                if (!res.ok) throw new Error('Login failed');
-
                 const data = await res.json();
-                currentToken = data.token;
-                currentUser = data;
-
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('email', data.email);
-                localStorage.setItem('role', data.role);
-                localStorage.setItem('businessId', data.businessId);
-
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('userEmail').textContent = data.email;
-                document.getElementById('userRole').textContent = data.role === 'admin' ? 'Admin' : 'Business';
-
-                if (data.role === 'business') {
-                    document.getElementById('navBusiness').classList.remove('hidden');
-                    document.getElementById('navAdmin').classList.add('hidden');
-                    showPage('overview');
+                if (res.ok) {
+                    localStorage.setItem('nfc_token', data.token);
+                    localStorage.setItem('nfc_businessId', data.businessId);
+                    localStorage.setItem('nfc_role', data.role);
+                    
+                    currentUser = data;
+                    currentToken = data.token;
+                    
+                    document.getElementById('userEmail').textContent = email;
+                    document.getElementById('loginPage').classList.remove('active');
+                    buildNav();
+                    showPage('overviewPage');
                 } else {
-                    document.getElementById('navBusiness').classList.add('hidden');
-                    document.getElementById('navAdmin').classList.remove('hidden');
-                    showPage('businesses');
+                    alert('Login failed: ' + (data.error || 'Invalid credentials'));
                 }
-
-                errorDiv.classList.add('hidden');
-            } catch (err) {
-                errorDiv.textContent = 'Login failed. Check credentials or backend connection.';
-                errorDiv.classList.remove('hidden');
+            } catch (error) {
+                alert('Login error: ' + error.message);
             }
         }
 
-        function handleLogout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('email');
-            localStorage.removeItem('role');
-            currentUser = null;
-            currentToken = null;
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
+        // Payment Functions
+        function openOneTimeCheckout() {
+            paymentType = 'one-time';
+            document.getElementById('checkoutTitle').textContent = 'Pay One-Time Fee - $70';
+            document.getElementById('checkoutModal').classList.add('active');
+            initStripe();
         }
 
-        // Navigation
-        function showPage(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.target.classList.add('active');
+        function openRecurringCheckout() {
+            paymentType = 'recurring';
+            document.getElementById('checkoutTitle').textContent = 'Subscribe - $8/month';
+            document.getElementById('checkoutModal').classList.add('active');
+            initStripe();
+        }
 
-            const titles = {
-                overview: 'Overview',
-                analytics: 'Analytics',
-                cards: 'NFC Cards',
-                logs: 'Tap Logs',
-                businesses: 'Businesses'
-            };
+        function closeModal() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
 
-            document.getElementById('pageTitle').textContent = titles[page];
+        async function processPayment(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('paymentEmail').value;
+            const businessId = localStorage.getItem('nfc_businessId');
+            const businessName = currentUser?.businessName || 'Business';
 
-            if (page === 'overview') {
-                document.getElementById('overviewPage').classList.remove('hidden');
-                loadOverview();
-            } else if (page === 'analytics') {
-                document.getElementById('analyticsPage').classList.remove('hidden');
-                loadAnalytics();
-            } else if (page === 'cards') {
-                document.getElementById('cardsPage').classList.remove('hidden');
-                loadCards();
-            } else if (page === 'logs') {
-                document.getElementById('logsPage').classList.remove('hidden');
-                loadLogs();
-            } else if (page === 'businesses') {
-                document.getElementById('businessesPage').classList.remove('hidden');
-                loadBusinesses();
+            try {
+                if (paymentType === 'one-time') {
+                    const res = await fetch(`${API_URL}/api/create-payment-intent`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessId, email, businessName })
+                    });
+                    
+                    const { clientSecret } = await res.json();
+                    const result = await stripe.confirmCardPayment(clientSecret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: { email }
+                        }
+                    });
+
+                    if (result.paymentIntent?.status === 'succeeded') {
+                        await fetch(`${API_URL}/api/confirm-payment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ businessId, paymentIntentId: result.paymentIntent.id, email, businessName })
+                        });
+                        alert('Payment successful! Invoice sent to ' + email);
+                        closeModal();
+                        loadPaymentStatus();
+                    } else {
+                        alert('Payment failed: ' + (result.error?.message || 'Unknown error'));
+                    }
+                } else {
+                    const res = await fetch(`${API_URL}/api/create-subscription`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ businessId, email, businessName })
+                    });
+                    alert('Subscription setup initiated. Check your email for confirmation.');
+                    closeModal();
+                    loadPaymentStatus();
+                }
+            } catch (error) {
+                alert('Payment error: ' + error.message);
+            }
+        }
+
+        // Load Payment Status
+        async function loadPaymentStatus() {
+            const businessId = localStorage.getItem('nfc_businessId');
+            try {
+                const res = await fetch(`${API_URL}/api/payment-status/${businessId}`);
+                const data = await res.json();
+                
+                document.getElementById('oneTimeStatus').className = 'payment-status ' + data.oneTimeFeeStatus;
+                document.getElementById('oneTimeStatus').textContent = `Status: ${data.oneTimeFeeStatus === 'paid' ? '✓ Paid' : 'Unpaid'} - $70 AUD`;
+                
+                document.getElementById('recurringStatus').className = 'payment-status ' + (data.recurringSubscriptionStatus === 'active' ? 'paid' : 'unpaid');
+                document.getElementById('recurringStatus').textContent = `Status: ${data.recurringSubscriptionStatus} - $8 AUD/month`;
+
+                // Load invoices
+                const invoicesRes = await fetch(`${API_URL}/api/payment-history/${businessId}`);
+                const invoices = await invoicesRes.json();
+                
+                if (invoices.length > 0) {
+                    document.getElementById('invoiceBody').innerHTML = invoices.map(inv => `
+                        <tr>
+                            <td>${new Date(inv.paidAt).toLocaleDateString()}</td>
+                            <td>$${inv.amount}</td>
+                            <td>${inv.type}</td>
+                            <td>${inv.status}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading payment status:', error);
+            }
+        }
+
+        // Load Admin Data
+        async function loadAdminData() {
+            try {
+                const [revenueRes, businessesRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/revenue`),
+                    fetch(`${API_URL}/admin/businesses`)
+                ]);
+
+                const revenue = await revenueRes.json();
+                const businesses = await businessesRes.json();
+
+                document.getElementById('totalRevenue').textContent = '$' + revenue.totalRevenue.toFixed(2);
+                document.getElementById('activeBusinesses').textContent = businesses.filter(b => b.oneTimeFeeStatus === 'paid').length;
+                document.getElementById('totalTransactions').textContent = revenue.totalTransactions;
+
+                document.getElementById('businessBody').innerHTML = businesses.map(b => `
+                    <tr>
+                        <td>${b.businessName}</td>
+                        <td>${b.email}</td>
+                        <td>${b.oneTimeFeeStatus === 'paid' ? '✓' : '✗'} ${b.oneTimeFeePaidDate ? new Date(b.oneTimeFeePaidDate).toLocaleDateString() : '-'}</td>
+                        <td>${b.recurringSubscriptionStatus}</td>
+                        <td>${b.recurringNextDueDate ? new Date(b.recurringNextDueDate).toLocaleDateString() : '-'}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading admin data:', error);
             }
         }
 
         // Load Overview
         async function loadOverview() {
+            const businessId = localStorage.getItem('nfc_businessId');
             try {
-                const res = await fetch(`${API_URL}/api/stats/${currentUser.businessId}`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                if (!res.ok) throw new Error('Failed');
-
+                const res = await fetch(`${API_URL}/api/analytics/${businessId}?period=today`);
                 const data = await res.json();
-                document.getElementById('statTodayTaps').textContent = data.todayTaps;
-                document.getElementById('statLastTap').textContent = data.lastTap ? getTimeAgo(new Date(data.lastTap)) : 'Never';
-                document.getElementById('statTotalTaps').textContent = data.totalTaps;
-                document.getElementById('statCards').textContent = data.activeCards;
-                document.getElementById('statAvgTaps').textContent = data.activeCards > 0 ? Math.round(data.totalTaps / data.activeCards) : 0;
-                document.getElementById('statPercentChange').textContent = data.totalTaps > 0 ? Math.round((data.todayTaps / (data.totalTaps / 30)) * 100) + '%' : '0%';
-            } catch (err) {
-                console.error(err);
+                document.getElementById('tapsToday').textContent = data.taps;
+                document.getElementById('totalTaps').textContent = data.allTaps;
+            } catch (error) {
+                console.error('Error:', error);
             }
         }
 
-        // Load Analytics
-        async function loadAnalytics() {
-            try {
-                const periods = ['today', '7days', '30days', 'alltime'];
-                const results = {};
-
-                for (const period of periods) {
-                    const res = await fetch(`${API_URL}/api/analytics/${currentUser.businessId}?period=${period}`, {
-                        headers: { 'Authorization': `Bearer ${currentToken}` }
-                    });
-                    if (!res.ok) throw new Error('Failed');
-                    const data = await res.json();
-                    results[period] = data.data.reduce((a, b) => a + b, 0);
-                }
-
-                document.getElementById('analyticsTodayTaps').textContent = results.today;
-                document.getElementById('analytics7Days').textContent = results['7days'];
-                document.getElementById('analytics30Days').textContent = results['30days'];
-                document.getElementById('analyticsAllTime').textContent = results.alltime;
-                document.getElementById('analyticsAvgDaily').textContent = results['30days'] > 0 ? Math.round(results['30days'] / 30) : 0;
-
-                const res2 = await fetch(`${API_URL}/api/stats/${currentUser.businessId}`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                const stats = await res2.json();
-                const mostTapped = stats.cards.length > 0 ? stats.cards.reduce((a, b) => a.totalTaps > b.totalTaps ? a : b).name : '-';
-                document.getElementById('analyticsMostTapped').textContent = mostTapped;
-            } catch (err) {
-                console.error(err);
-            }
+        // Logout
+        function logout() {
+            localStorage.clear();
+            location.reload();
         }
 
-        // Load Cards
-        async function loadCards() {
-            try {
-                const res = await fetch(`${API_URL}/api/stats/${currentUser.businessId}`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                if (!res.ok) throw new Error('Failed');
-
-                const data = await res.json();
-                const list = document.getElementById('cardsList');
-                list.innerHTML = '';
-
-                if (data.cards.length === 0) {
-                    list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text2); padding: 40px;">No cards yet. Create one above!</div>';
-                    return;
-                }
-
-                data.cards.forEach(card => {
-                    list.innerHTML += `
-                        <div class="card-item">
-                            <div class="card-item-name">${card.name}</div>
-                            <div class="card-item-detail"><strong>Taps:</strong> ${card.totalTaps}</div>
-                            <div class="card-item-detail"><strong>Last Tap:</strong> ${card.lastTap ? getTimeAgo(new Date(card.lastTap)) : 'Never'}</div>
-                            <div class="card-item-detail"><strong>Serial:</strong> ${card.serial}</div>
-                            <div class="card-item-url">🔗 ${card.redirectUrl}</div>
-                        </div>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        // Create Card
-        async function createCard() {
-            const name = document.getElementById('cardName').value;
-            const url = document.getElementById('cardUrl').value;
-            const msg = document.getElementById('cardMessage');
-
-            if (!name || !url) {
-                msg.innerHTML = '<div class="message error">Fill in all fields</div>';
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_URL}/api/cards`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentToken}`
-                    },
-                    body: JSON.stringify({ name, redirectUrl: url })
-                });
-
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
-
-                msg.innerHTML = `<div class="message success">✅ Card created! Tap URL: ${data.tapUrl}</div>`;
-                document.getElementById('cardName').value = '';
-                document.getElementById('cardUrl').value = '';
-                setTimeout(() => loadCards(), 1000);
-            } catch (err) {
-                msg.innerHTML = `<div class="message error">❌ Failed to create card</div>`;
-            }
-        }
-
-        // Load Logs
-        async function loadLogs() {
-            try {
-                const res = await fetch(`${API_URL}/api/logs/${currentUser.businessId}`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                if (!res.ok) throw new Error('Failed');
-
-                const logs = await res.json();
-                const table = document.getElementById('logsTable');
-                table.innerHTML = '';
-
-                if (logs.length === 0) {
-                    table.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text2);">No taps yet</td></tr>';
-                    return;
-                }
-
-                logs.forEach(log => {
-                    table.innerHTML += `
-                        <tr>
-                            <td>${new Date(log.timestamp).toLocaleString()}</td>
-                            <td>${log.cardName}</td>
-                            <td>${log.device}</td>
-                        </tr>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        // Load Businesses (Admin)
-        async function loadBusinesses() {
-            try {
-                const res = await fetch(`${API_URL}/admin/businesses`, {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                if (!res.ok) throw new Error('Failed');
-
-                const businesses = await res.json();
-                const table = document.getElementById('businessesTable');
-                table.innerHTML = '';
-
-                businesses.forEach(biz => {
-                    table.innerHTML += `
-                        <tr>
-                            <td>${biz.name}</td>
-                            <td>${biz.email}</td>
-                            <td>${biz.cardCount}</td>
-                            <td>${biz.totalTaps}</td>
-                        </tr>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        // Create Business (Admin)
-        async function createBusiness() {
-            const name = document.getElementById('newBizName').value;
-            const email = document.getElementById('newBizEmail').value;
-            const msg = document.getElementById('bizMessage');
-
-            if (!name || !email) {
-                msg.innerHTML = '<div class="message error">Fill in all fields</div>';
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_URL}/admin/create-business`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentToken}`
-                    },
-                    body: JSON.stringify({ name, email })
-                });
-
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
-
-                msg.innerHTML = `<div class="message success">✅ Business created!<br>Email: ${email}<br>Password: ${data.password}</div>`;
-                document.getElementById('newBizName').value = '';
-                document.getElementById('newBizEmail').value = '';
-                setTimeout(() => loadBusinesses(), 1000);
-            } catch (err) {
-                msg.innerHTML = `<div class="message error">❌ Failed to create business</div>`;
-            }
-        }
-
-        // Utility
-        function getTimeAgo(date) {
-            const seconds = Math.floor((Date.now() - date) / 1000);
-            if (seconds < 60) return 'just now';
-            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
-            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
-            if (seconds < 2592000) return Math.floor(seconds / 86400) + 'd ago';
-            return Math.floor(seconds / 2592000) + 'mo ago';
-        }
-
-        // Check for existing session
-        window.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
+        // Initialize
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('nfc_token');
             if (token) {
                 currentToken = token;
-                currentUser = {
-                    email: localStorage.getItem('email'),
-                    role: localStorage.getItem('role'),
-                    businessId: localStorage.getItem('businessId')
-                };
-
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('userEmail').textContent = currentUser.email;
-                document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Admin' : 'Business';
-
-                if (currentUser.role === 'business') {
-                    document.getElementById('navBusiness').classList.remove('hidden');
-                    document.getElementById('navAdmin').classList.add('hidden');
-                    showPage('overview');
-                } else {
-                    document.getElementById('navBusiness').classList.add('hidden');
-                    document.getElementById('navAdmin').classList.remove('hidden');
-                    showPage('businesses');
-                }
+                currentUser = { businessId: localStorage.getItem('nfc_businessId'), role: localStorage.getItem('nfc_role') };
+                document.getElementById('loginPage').classList.remove('active');
+                buildNav();
+                showPage('overviewPage');
             }
         });
     </script>

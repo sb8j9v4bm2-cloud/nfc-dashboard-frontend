@@ -934,7 +934,15 @@
                         body: JSON.stringify({ businessId, email, businessName })
                     });
                     
-                    const { clientSecret } = await res.json();
+                    const data = await res.json();
+                    console.log('Payment intent response:', data);
+                    
+                    if (!data.clientSecret) {
+                        alert('Error: ' + (data.error || 'Failed to create payment intent'));
+                        return;
+                    }
+                    
+                    const { clientSecret } = data;
                     const result = await stripe.confirmCardPayment(clientSecret, {
                         payment_method: { card: cardElement, billing_details: { email } }
                     });
@@ -948,6 +956,8 @@
                         alert('Payment successful!');
                         closeModal();
                         loadPaymentStatus();
+                    } else {
+                        alert('Payment failed: ' + (result.error?.message || 'Unknown error'));
                     }
                 } else {
                     await fetch(`${API_URL}/api/create-subscription`, {
@@ -960,6 +970,7 @@
                     loadPaymentStatus();
                 }
             } catch (error) {
+                console.error('Payment error:', error);
                 alert('Error: ' + error.message);
             }
         }
